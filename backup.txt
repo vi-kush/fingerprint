@@ -1,0 +1,39 @@
+// namespace FingerPrint
+// {
+//     class Program
+//     {
+//         static void Main(string[] args)
+//         {
+//             Console.WriteLine("Initializing fingerprint device...");
+            
+//             // // Create an instance of your controller
+//             // EnrollmentController controller = new EnrollmentController();
+            
+//             // // Hide the form (since it inherits from Form)
+//             // controller.Visible = false;
+//             // controller.ShowInTaskbar = false;
+
+//             // Console.WriteLine("Application is running. Press Enter to exit...");
+//             // controller.Start();
+            
+//             // controller.StartEnrollment();
+
+//             // string Template = controller.GetBase64Template();
+//             // Console.ReadLine();
+//             // controller.Stop();
+//             // Console.WriteLine("Application is stopped;");
+
+//             // string Template = "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";
+        
+//             // VerificationController verificationController = new VerificationController();
+//             // verificationController.Start();
+
+//             // verificationController.Verify(verificationController.DeSerializeEnrollment(Template));
+
+
+//             // Console.WriteLine(verificationController.GetVerificationResult());
+//             // Console.WriteLine("Application is stopped;");
+            
+//         }
+//     }
+// }
