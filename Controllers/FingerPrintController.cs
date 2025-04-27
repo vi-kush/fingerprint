@@ -35,7 +35,7 @@ namespace FingerPrint.Controllers
         [Route("seed")]
         public IHttpActionResult SeedFingerprints([FromBody] List<FingerPrintModel> FingerprintList)
         {
-            int size = 0;
+            int size = 0, insertCount = 0, updateCount = 0;
             
             if (FingerprintList == null || FingerprintList.Count == 0)
             {
@@ -47,27 +47,25 @@ namespace FingerPrint.Controllers
                 if (!string.IsNullOrEmpty(fingerprint.Template) && !string.IsNullOrEmpty(fingerprint.UserName))
                 {
                     // Store the fingerprint template with the username as the key
-                    FingerPrintModel fp = new() {
-                        Template = fingerprint.Template,
-                        UserName = fingerprint.UserName
-                    };
-
-                    if (StoredFingerprints.TryAdd(fingerprint.UserName, fp))
+                    if (StoredFingerprints.TryAdd(fingerprint.UserName, fingerprint))
                     {
-                        size++;
+                        ++insertCount;
                     }
                     else
                     {
                         // If the user already exists, update their fingerprint
-                        StoredFingerprints[fingerprint.UserName] = fp;
-                        size++;
+                        StoredFingerprints[fingerprint.UserName] = fingerprint;
+                        ++updateCount;
                     }
+                    size++;
                 }
             }
     
             return Ok(new { 
                 message = $"{size} FingerPrint(s) Saved",
-                totalStored = StoredFingerprints.Count
+                totalStored = StoredFingerprints.Count,
+                insertCount,
+                updateCount
             });
 
         }
@@ -195,7 +193,7 @@ namespace FingerPrint.Controllers
         {
             
             string template = FpModel?.Template ?? null;
-            uint TIMEOUT = 60; // Timeout Seconds
+            uint TIMEOUT = 90; // Timeout Seconds
             
             try
             {

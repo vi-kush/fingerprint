@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+// using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace FingerPrint.Services
@@ -18,7 +19,7 @@ namespace FingerPrint.Services
             // Since we're inheriting from Form now, we'll configure this form instead of creating a dummy
             this.Text = "FingerPrint Enrollment";
             this.ForceClosed = false;
-            this.ShowInTaskbar = false;
+            this.ShowInTaskbar = true;
             this.TopMost = true;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -29,22 +30,34 @@ namespace FingerPrint.Services
             // this.Size = new System.Drawing.Size(1, 1);
             this.Deactivate += (object sender, EventArgs e) =>{
                 // Bring the form back to focus
-                Console.WriteLine("Deactivate");
                 if (isRunning){
                     this.Activate();
                     this.BringToFront();
                 }
             };
+            // this.Activated += (object sender, EventArgs e) =>{
+            //     // Bring the form back to focus
+            //     Console.WriteLine("Activated");
+            // };
+            // this.Enter += (object sender, EventArgs e) =>{
+            //     // Bring the form back to focus
+            //     Console.WriteLine("Entered");
+            // };
+            // this.GotFocus += (object sender, EventArgs e) =>{
+            //     // Bring the form back to focus
+            //     Console.WriteLine("GotFocus");
+            // };
             this.LostFocus += (object sender, EventArgs e) =>{
                 // Bring the form back to focus
-                Console.WriteLine("LostFocus");
+                // Console.WriteLine("LostFocus");
                 if (isRunning){
+                    // Console.WriteLine("Focus");
                     this.Focus();
                 }
-            };;
+            };
 			this.FormClosing += (sender, e) => {
 				// Ensure capture is stopped
-                Console.WriteLine("Closing");
+                // Console.WriteLine("Closing");
 				if (isRunning && Capturer != null)
 				{
 					try
@@ -63,14 +76,15 @@ namespace FingerPrint.Services
         private TextBox logTextBox;
         
         private void InitializeComponents()
-        {
+        { 
+            PreInitializeComponents();
             // Create log text box
             logTextBox = new TextBox();
             logTextBox.Multiline = true;
             logTextBox.ScrollBars = ScrollBars.Vertical;
             logTextBox.ReadOnly = true;
             logTextBox.Dock = DockStyle.Top;
-            logTextBox.Height = 250;
+            logTextBox.Height = 150;
             // logTextBox.BackColor = Color.Black;
             logTextBox.ForeColor = Color.Black;
             logTextBox.Font = new Font("Consolas", 9);
@@ -81,6 +95,64 @@ namespace FingerPrint.Services
             // Resize the form to accommodate the log box
             this.Width = 500;
             this.Height = 300;
+            PostInitializeComponents();
+        }
+
+        public virtual void PreInitializeComponents(){
+
+        }
+
+        // protected 
+        protected PictureBox Picture1;
+        protected PictureBox Picture2;
+        protected PictureBox Picture3;
+        protected PictureBox Picture4;
+        protected virtual void PostInitializeComponents(){
+
+            this.Picture1 = new PictureBox();
+			this.Picture1.Location = new Point(50, 170);
+            this.Picture1.Size = new Size(50, 60);
+            this.Picture1.TabIndex = 0;
+			this.Picture1.TabStop = false;
+            this.Picture1.Name = "Finger Print 1";
+            // this.Picture1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Picture1.Image = Image.FromFile("Assets/fingerprint.png");
+            this.Picture1.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(this.Picture1);
+
+            this.Picture2 = new PictureBox();
+			this.Picture2.Location = new Point(160, 170);
+            this.Picture2.Size = new Size(50, 60);
+            this.Picture2.TabIndex = 0;
+			this.Picture2.TabStop = false;
+            this.Picture2.Name = "Finger Print 2";
+            // this.Picture2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Picture2.Image = Image.FromFile("Assets/fingerprint.png");
+            this.Picture2.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(this.Picture2);
+
+            this.Picture3 = new PictureBox();
+			this.Picture3.Location = new Point(270, 170);
+            this.Picture3.Size = new Size(50, 60);
+            this.Picture3.TabIndex = 0;
+			this.Picture3.TabStop = false;
+            this.Picture3.Name = "Finger Print 3";
+            // this.Picture3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Picture3.Image = Image.FromFile("Assets/fingerprint.png");
+            this.Picture3.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(this.Picture3);
+
+            this.Picture4 = new PictureBox();
+			this.Picture4.Location = new Point(380, 170);
+            this.Picture4.Size = new Size(50, 60);
+            this.Picture4.TabIndex = 0;
+			this.Picture4.TabStop = false;
+            this.Picture4.Name = "Finger Print 4";
+            // this.Picture4.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Picture4.Image = Image.FromFile("Assets/fingerprint.png");
+            this.Picture4.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(this.Picture4);
+
         }
 
         // Method to log messages to both console and text box
@@ -359,6 +431,22 @@ namespace FingerPrint.Services
         {
             // Show number of samples needed.
             Log(String.Format("Fingerprint samples needed: {0}", Enroller.FeaturesNeeded));
+
+            switch (Enroller.FeaturesNeeded)
+            {
+                case 3:
+                    this.Picture1.Image = Image.FromFile("Assets/fingerprint_accepted.png");
+                    break;
+                case 2:
+                    this.Picture2.Image = Image.FromFile("Assets/fingerprint_accepted.png");
+                    break;
+                case 1:
+                    this.Picture3.Image = Image.FromFile("Assets/fingerprint_accepted.png");
+                    break;
+                case 0:
+                    this.Picture4.Image = Image.FromFile("Assets/fingerprint_accepted.png");
+                    break;
+            }
         }
 
         public string SerializeEnrollment(DPFP.Processing.Enrollment enrollment)

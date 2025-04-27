@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using FingerPrint.Models;
@@ -37,8 +38,21 @@ namespace FingerPrint.Services
         public override void OnComplete(object Capture, string ReaderSerialNumber, DPFP.Sample Sample)
         {
             Log("The fingerprint sample was captured.");
+            this.Picture1.Image = Image.FromFile("Assets/fingerprint_accepted.png");
             if(Template != null) Process(Sample);
             else ProcessAll(Sample);
+        }
+
+        protected override void PostInitializeComponents(){
+            this.Picture1 = new PictureBox();
+			this.Picture1.Location = new Point(210, 170);
+            this.Picture1.Size = new Size(50, 60);
+            this.Picture1.TabIndex = 0;
+			this.Picture1.TabStop = false;
+            this.Picture1.Name = "Finger Print 1";
+            this.Picture1.Image = Image.FromFile("Assets/fingerprint.png");
+            this.Picture1.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(this.Picture1);
         }
 
         public void StartVerification()
@@ -90,7 +104,7 @@ namespace FingerPrint.Services
                 template.DeSerialize(Convert.FromBase64String(base64Template));
                 // Process the loaded template
                 
-                Console.WriteLine("Template loaded successfully");
+                // Console.WriteLine("Template loaded successfully");
                 return template;
             }
             catch (Exception ex)
