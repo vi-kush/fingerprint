@@ -27,7 +27,10 @@ namespace FingerPrint.Controllers
         [Route("")]
         public IHttpActionResult ApiCheck()
         {
-            return Ok(new { message = "Fingerprint API is working!" });
+            return Ok(new { 
+                message = "Fingerprint API is working!", 
+                totalStored = StoredFingerprints.Count 
+            });
         }
 
         // POST: api/fingerprint/seed
@@ -118,8 +121,8 @@ namespace FingerPrint.Controllers
                                 template = service.GetBase64Template();
                                 fingerPrints = service.GetFingerPrints();
                                 enrollmentComplete = true;
-                                service.Close();
                             }
+                            service.Close();
                         };
                         
                         Console.WriteLine("Starting enrollment process...");
@@ -133,14 +136,14 @@ namespace FingerPrint.Controllers
                             System.Windows.Forms.Application.DoEvents();
                             if(service.ForceClosed && !enrollmentComplete){
                                 service.Close();
-                                throw new FormClosedException("Form was closed by user");
+                                throw new FormClosedException("Fingerprint Enrollment Failed. Please Restart.");
                             }
                         }
 
                         if (!enrollmentComplete)
                         {
                             service.Close();
-                            throw new TimeoutException("Fingerprint enrollment timed out after 30 seconds");
+                            throw new TimeoutException($"Fingerprint enrollment timed out after {TIMEOUT} seconds");
                         }
                         
                         return new { Template = template, FingerPrints = fingerPrints };
@@ -155,6 +158,7 @@ namespace FingerPrint.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 Exception actualException = ex;
                 if (ex is AggregateException aggEx && aggEx.InnerExceptions.Count > 0)
                 {
@@ -165,14 +169,14 @@ namespace FingerPrint.Controllers
                 if (actualException is FormClosedException)
                 {
                     return Content(HttpStatusCode.Gone, new {
-                        error = "Form closed by user."
+                        error = actualException.Message
                     }); 
-                }
+                }     
                 else if (actualException is TimeoutException)
                 {
                     return Content(HttpStatusCode.RequestTimeout, new {
-                        error = "Fingerprint enrollment timed out. Please try again."
-                    });
+                        error = actualException.Message
+                    }); 
                 }
                 else
                 {
@@ -214,7 +218,7 @@ namespace FingerPrint.Controllers
                             fingerTemplate = service.DeSerializeEnrollment(template);
                             if (fingerTemplate == null)
                             {
-                                throw new InvalidOperationException("Failed to load fingerprint template");
+                                throw new InvalidOperationException("Failed to load fingerprint template.");
                             }
                         }else{
                             service.AllBase64Fingerprint = StoredFingerprints;
@@ -235,13 +239,13 @@ namespace FingerPrint.Controllers
 
                         if(service.ForceClosed){
                             service.Close();
-                            throw new FormClosedException("Form was closed by user");
+                            throw new FormClosedException("Fingerprint Verification Failed. Please Restart.");
                         }
                         
                         if (!service.VerificationDone)
                         {
                             service.Close();
-                            throw new TimeoutException("Fingerprint verification timed out");
+                            throw new TimeoutException("Fingerprint verification timed out.");
                         }
                         
                         return new {result = service.GetVerificationResult(), User = service.User ?? null};
@@ -259,13 +263,14 @@ namespace FingerPrint.Controllers
                 else
                 {
                     return Ok(new {
-                        message = "Fingerprint verification failed",
+                        message = "Fingerprint verification failed.",
                         status = false
                     });
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 Exception actualException = ex;
                 if (ex is AggregateException aggEx && aggEx.InnerExceptions.Count > 0)
                 {
@@ -276,14 +281,14 @@ namespace FingerPrint.Controllers
                 if (actualException is FormClosedException)
                 {
                     return Content(HttpStatusCode.Gone, new {
-                        error = "Form closed by user."
+                        error = actualException.Message
                     }); 
                 }
                 else if (actualException is TimeoutException)
                 {
                     return Content(HttpStatusCode.RequestTimeout, new {
-                        error = "Fingerprint enrollment timed out. Please try again."
-                    });
+                        error = actualException.Message
+                    }); 
                 }
                 else
                 {

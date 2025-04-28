@@ -415,12 +415,11 @@ namespace FingerPrint.Services
 
                         case DPFP.Processing.Enrollment.Status.Failed:
                             Enroller.Clear();
-                            Stop();
-                            UpdateStatus();
                             OnTemplateHandler(null);
-                            OnTemplate?.Invoke(null);
                             // Don't automatically restart, let the client decide
                             Console.WriteLine("Enrollment failed. You may need to restart the enrollment process.");
+                            OnTemplate?.Invoke(null);
+                            Stop();
                             break;
                     }
                 }
@@ -477,13 +476,13 @@ namespace FingerPrint.Services
             return base64FingerPrint;
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual new void Dispose(bool disposing)
         {
             if (!disposed)
             {
