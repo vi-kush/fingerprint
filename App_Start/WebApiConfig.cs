@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using Newtonsoft.Json.Serialization;
 using FingerPrint.Controllers;
 
@@ -14,7 +15,9 @@ namespace FingerPrint
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-            
+            var cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
+
             // Use camelCase for JSON data
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             

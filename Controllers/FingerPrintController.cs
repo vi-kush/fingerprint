@@ -9,9 +9,11 @@ using System.Collections.Concurrent;
 using FingerPrint.Models;
 using FingerPrint.Services;
 using FingerPrint.Exceptions;
+using System.Web.Http.Cors;
 
 namespace FingerPrint.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     [RoutePrefix("api/fingerprint")]
     public class FingerPrintController : ApiController
     {
